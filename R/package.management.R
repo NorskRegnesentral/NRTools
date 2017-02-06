@@ -6,7 +6,7 @@
 #' @author Alex
 #' @examples
 #' ## BENCHMARK
-#' ## DEPENDENT: hash.obj
+#' ## LOCAL: hash.obj
 #' set.seed(1)
 #' r <- rnorm(1e5)
 #' r.md5 <- hash.obj(r)

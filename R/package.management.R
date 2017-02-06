@@ -34,13 +34,13 @@ hash.obj <- function(obj)
 #' Benchmark all functions in a package
 #' @description This function goes through the entire namespace of a given package, tests if there are benchmarks in the examples code .  The md5 hash of the function source code as well as the hashed results of any benchmarks are then stored in a new file
 #' @inheritParams global_arguments (Include this IF one or more arguments are declared in the function global_arguments)
-#' @export generate.benchmarks
+#' @export compare.benchmarks
 #' @return Nothing yet.
 #' @author Alex
-compare.benchmarks <- function(pkg.loc="./"
+compare.benchmarks <- function(pkg.loc="./",
                                pkg.name = tail(splitstr(normalizePath(pkg.loc),"/")[[1]],1),
                                branch.orig = "master",
-                               branch.new = "dev"
+                               branch.new = "dev",
                                skip.same = TRUE,
                                verbose=TRUE,
                                datasets=NULL)
@@ -113,6 +113,7 @@ compare.benchmarks <- function(pkg.loc="./"
 #' @description For a given function, lookup the currently stored benchmarks and return them.
 #' @param str.f The function name as a string
 #' @param package.loc Where the source code for the package is, and benchmarks
+#' @export lookup.benchmarks
 #' @examples
 #' ## BENCHMARK
 #' a <- lookup.benchmarks("lookup.benchmarks")
@@ -136,6 +137,7 @@ lookup.benchmarks <- function(str.f,
 #' @param str.f The function name as a string
 #' @param package.loc Where the source code for the package is, and benchmarks
 #' @param verbose Chatty
+#' @export run.benchmarks
 #' @examples
 #' data(market_2)
 #' ## BENCHMARK
@@ -188,6 +190,7 @@ run.benchmarks <- function(str.f,
 #' @param benchmark.loc The path where the package source code lives
 #' @param verbose Tell me about your day
 #' @return A vector of length n with the whether the benchmarks passed (TRUE) or at least one failed (FALSE) for each function
+#' @export test.benchmarks
 #' @examples
 #' data(market_2)
 #' ## BENCHMARK

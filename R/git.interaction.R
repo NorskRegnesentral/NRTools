@@ -1,14 +1,14 @@
 #' Find out all local branches
 #' @param loc Where to look for the package
 #' @return A string with the name of the current branch
-#' @export
+#' @export git.current.branch
 git.current.branch <- function(loc="./")
 {
   b <- system("git symbolic-ref --short HEAD", intern = TRUE)
   return(b)
 }
 
-#' @export
+#' @export git.install.temp.branch
 git.install.temp.branch <- function(branch.name, loc="./",
                                     pkg.name = tail(strsplit(getwd(),"/")[[1]],1))
 {
@@ -52,7 +52,7 @@ git.install.temp.branch <- function(branch.name, loc="./",
   return(temp.name)
 }
 
-#' @export
+#' @export git.uninstall.temp.branch
 git.uninstall.temp.branch <- function(temp.name)
 {
   if(temp.name == "")error("Empty name passed to git.uninstall.temp.branch")

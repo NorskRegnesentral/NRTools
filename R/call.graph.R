@@ -86,7 +86,7 @@ prof.routine <- function(f, rep = 1)
 #' @description Using the processed output from an Rprof session, this will create an graph object representing the call graph.  It is focused on a particular namespace and colors nodes according to their documentation/review states
 #' 
 #' @param pd The processed output of an Rprof session for a block of R code (see example)
-#' @export pd
+#' @export call.graph.setup
 #' @returns A Rgraphviz rendered graph object
 #' @author Alex
 #' @examples

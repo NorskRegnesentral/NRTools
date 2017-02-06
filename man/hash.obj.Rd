@@ -17,7 +17,7 @@ R's tools only allow one to create the md5 hash of a file.  This function takes 
 }
 \examples{
 ## BENCHMARK
-## DEPENDENT: hash.obj
+## LOCAL: hash.obj
 set.seed(1)
 r <- rnorm(1e5)
 r.md5 <- hash.obj(r)

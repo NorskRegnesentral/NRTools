@@ -1,9 +1,0 @@
-#' Find out all local branches
-#' @param loc Where to look for the package
-#' @return A string with the name of the current branch
-git.current.branch <- function(loc="./")
-{
-  b <- system("git symbolic-ref --short HEAD", intern = TRUE)
-  return(b)
-}
-

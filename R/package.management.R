@@ -31,6 +31,23 @@ hash.obj <- function(obj)
   return(m.sum)
 }
 
+benchmark.localize <- function(b.code, pkg.local)
+{
+  if(substr(b.code[1],1,9) == "## LOCAL:")
+  {
+    temp <- substr(b.code[1],11,nchar(b.code[1]))
+    local.f <- strsplit(temp, ",")[[1]]
+  }else{
+    return(b.code)
+  }
+
+  for(j in 1:length(local.f))
+  {
+    b.code <- gsub(local.f,paste0(pkg.local,"::",local.f), b.code[-1])
+  }
+
+  return(b.code)
+}
 #' Benchmark all functions in a package
 #' @description This function goes through the entire namespace of a given package, tests if there are benchmarks in the examples code .  The md5 hash of the function source code as well as the hashed results of any benchmarks are then stored in a new file
 #' @inheritParams global_arguments (Include this IF one or more arguments are declared in the function global_arguments)
@@ -52,7 +69,7 @@ compare.benchmarks <- function(pkg.loc="./",
   ##---------------------------------------------
 
   ##------ Get original branch namespace -----------
-  fs = ls(as.environment(paste0("package:", pkg.orig)))
+  fs = ls(loadNamespace(pkg.orig))##as.environment(paste0("package:", pkg.orig)))
   ##-------------------------------------------------
 
   ##----- Run Data code -------
@@ -63,7 +80,7 @@ compare.benchmarks <- function(pkg.loc="./",
   ##---------------------------
 
   ##------ Run through all benchmarks --------
-  for(i in sample(1:length(fs)))  ## Random to ensure no serial dependence between outputs
+  for(i in 1:length(fs))  ## Random to ensure no serial dependence between outputs
   {
     str.f <- fs[i]
 
@@ -78,14 +95,13 @@ compare.benchmarks <- function(pkg.loc="./",
       w.benchmark.stop <- grep("## END BENCHMARK",a)
       if(length(w.benchmark.start) > 0)
       {
-        md5.out <- rep(NA, length(w.benchmark.start) + 1)
-        md5.out[1] <- md5.f
         for(j in 1:length(w.benchmark.start))
         {
-          
           if(verbose)print(paste("On Function",str.f, "benchmark",j))
           l.b <- (w.benchmark.start[j]+1):(w.benchmark.stop[j] - 1)
           b.code <- a[l.b]
+          b.code.orig <- benchmark.localize(b.code, pkg.orig)
+          b.code.new <- benchmark.localize(b.code, pkg.new)
           cat(paste0(paste(b.code,collapse="\n"),"\n"))
           eval(parse(text = paste0("f.temp <- function(){", paste(b.code, collapse="\n"),"}")))
           b.result <- f.temp()

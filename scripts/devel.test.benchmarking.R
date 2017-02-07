@@ -1,9 +1,11 @@
 rm(list = ls())
 
-pkg.loc <- "~/pkg/pricemethodresearch/"
-pkg.name <- "pricemethodresearch"
+pkg.loc <- "~/pkg/ShotSliceSampler/"
+pkg.name <- "ShotSliceSampler"
 branch.orig <- "master"
 branch.new <- "dev"
 verbose <- TRUE
-datasets <- "market_2.RData"
 output.loc <- "/tmp/"
+datasets <- NULL
+
+report <- NRTools::benchmark.run.comparison(pkg.loc,pkg.name)

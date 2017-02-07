@@ -1,5 +1,50 @@
+#' Compare the output of two benchmarks
+benchmark.compare.output <- function(pkg.name,branch.orig, branch.new,output.loc, verbose)
+{
+  path.orig <- paste0(output.loc,"/",pkg.name,"_",branch.orig,"/results/")
+  f.orig <- list.files(path.orig)
+
+  path.new <- paste0(output.loc,"/",pkg.name,"_",branch.new,"/results/")
+  f.new <- list.files(path.new)
+
+  missing.new <- NULL
+  unequal.new <- NULL
+  equal <- NULL
+  for(i in 1:length(f.orig))
+  {
+    f <- f.orig[i]
+    if(! (f %in% f.new))
+    {
+      missing.new <- c(missing.new, f)
+    }else{
+      load(paste0(path.orig,f))
+      b.result.orig <- b.result
+      load(paste0(path.new,f))
+      if(all.equal(b.result.orig, b.result) != TRUE)
+      {
+        unequal.new <- c(unequal.new, f)
+      }else{
+        equal <- c(equal, f)
+      }
+    }
+  }
+
+  w.new <- which(!(f.new %in% f.orig))
+  new.benchmarks <- NULL
+  if(length(w.new) > 0)
+  {
+    new.benchmarks <- f.new[w.new]
+  }
+
+  l <- list(missing = missing.new, unequal = unequal.new, new = new.benchmarks, equal = equal)
+  return(l)
+  
+}
+
+
 #' Compare the benchmark results from two versions of the repository
 #' @description Note that this needs to launch separate R 
+#' @export benchmark.run.comparison
 benchmark.run.comparison <- function(pkg.loc="./",
                                      pkg.name = tail(splitstr(normalizePath(pkg.loc),"/")[[1]],1),
                                      branch.orig = "master",
@@ -20,7 +65,7 @@ benchmark.run.comparison <- function(pkg.loc="./",
   }
   
   ##-------- Compare the benchmarks --------------
-  report <- benchmark.compare.output(pkg.name,branch.orig, branch.new, outpu.loc, verbose)
+  report <- benchmark.compare.output(pkg.name,branch.orig, branch.new, output.loc, verbose)
   ##---------------------------------------------
 
   return(report)

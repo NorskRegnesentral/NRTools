@@ -46,7 +46,7 @@ benchmark.compare.output <- function(pkg.name,branch.orig, branch.new,output.loc
 #' @description Note that this needs to launch separate R 
 #' @export benchmark.run.comparison
 benchmark.run.comparison <- function(pkg.loc="./",
-                                     pkg.name = tail(splitstr(normalizePath(pkg.loc),"/")[[1]],1),
+                                     pkg.name = tail(strsplit(normalizePath(pkg.loc),"/")[[1]],1),
                                      branch.orig = "master",
                                      branch.new = "dev",
                                      output.loc = "/tmp/",

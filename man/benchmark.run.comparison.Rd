@@ -5,7 +5,7 @@
 \title{Compare the benchmark results from two versions of the repository}
 \usage{
 benchmark.run.comparison(pkg.loc = "./",
-  pkg.name = tail(splitstr(normalizePath(pkg.loc), "/")[[1]], 1),
+  pkg.name = tail(strsplit(normalizePath(pkg.loc), "/")[[1]], 1),
   branch.orig = "master", branch.new = "dev", output.loc = "/tmp/",
   verbose = TRUE, datasets = NULL)
 }

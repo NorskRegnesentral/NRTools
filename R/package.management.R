@@ -1,91 +1,81 @@
-#' Create the md5 hash of an object
-#' @description R's tools only allow one to create the md5 hash of a file.  This function takes an R object, creates a file, calculates the hash, deletes the file and returns the result.
-#' @param obj Any R object that can be saved with the save command.
-#' @export hash.obj
-#' @return The md5 hash of an object
-#' @author Alex
-#' @examples
-#' ## BENCHMARK
-#' ## LOCAL: hash.obj
-#' set.seed(1)
-#' r <- rnorm(1e5)
-#' r.md5 <- hash.obj(r)
-#' names(r.md5) <- NULL
-#' r.md5
-#' ## END BENCHMARK
-hash.obj <- function(obj)
-{
-  ## Every once in a while, floats cause problems.
-  if( is.numeric(obj) ) obj <- round(obj,6)
-  if( is.list(obj) )
-  {
-    for(j in 1:length(obj) )
-    {
-      if(is.numeric(obj) )
-      {
-        obj[[j]] <- round(obj[[j]], 6)
-      }
-    }
-  }
-  m.sum <- digest::digest(obj)
-  return(m.sum)
-}
-
-benchmark.localize <- function(b.code, pkg.local)
-{
-  if(substr(b.code[1],1,9) == "## LOCAL:")
-  {
-    temp <- substr(b.code[1],11,nchar(b.code[1]))
-    local.f <- strsplit(temp, ",")[[1]]
-  }else{
-    return(b.code)
-  }
-
-  for(j in 1:length(local.f))
-  {
-    b.code <- gsub(local.f,paste0(pkg.local,"::",local.f), b.code[-1])
-  }
-
-  return(b.code)
-}
-#' Benchmark all functions in a package
-#' @description This function goes through the entire namespace of a given package, tests if there are benchmarks in the examples code .  The md5 hash of the function source code as well as the hashed results of any benchmarks are then stored in a new file
-#' @inheritParams global_arguments (Include this IF one or more arguments are declared in the function global_arguments)
-#' @export compare.benchmarks
-#' @return Nothing yet.
-#' @author Alex
-compare.benchmarks <- function(pkg.loc="./",
-                               pkg.name = tail(splitstr(normalizePath(pkg.loc),"/")[[1]],1),
-                               branch.orig = "master",
-                               branch.new = "dev",
-                               skip.same = TRUE,
-                               verbose=TRUE,
-                               datasets=NULL)
+#' Compare the benchmark results from two versions of the repository
+#' @description Note that this needs to launch separate R 
+benchmark.run.comparison <- function(pkg.loc="./",
+                                     pkg.name = tail(splitstr(normalizePath(pkg.loc),"/")[[1]],1),
+                                     branch.orig = "master",
+                                     branch.new = "dev",
+                                     output.loc = "/tmp/",
+                                     verbose=TRUE,
+                                     datasets=NULL)
 {
 
-  ##------- Setup up testing environment --------
-  pkg.orig <- git.install.temp.branch(branch.orig, pkg.loc, pkg.name)
-  pkg.new <- git.install.temp.branch(branch.new, pkg.loc, pkg.name)
+  for(b in c(branch.orig, branch.new))
+  {
+    ##-------- Install and save the original benchmarks ----------------
+    command <- paste(b,pkg.loc,pkg.name,sep="','")
+    system2("Rscript", paste0("-e \"NRTools::git.install.branch('",command,"')\"") )
+    command <- paste(pkg.loc,pkg.name, b, output.loc, verbose, datasets,sep="','")
+    system2("Rscript", paste("-e \"NRTools::benchmark.generate.comparison('",command, "')\""))
+    ##-------------------------------------------------------------------
+  }
+  
+  ##-------- Compare the benchmarks --------------
+  report <- benchmark.compare.output(pkg.name,branch.orig, branch.new, outpu.loc, verbose)
   ##---------------------------------------------
 
-  ##------ Get original branch namespace -----------
-  fs = ls(loadNamespace(pkg.orig))##as.environment(paste0("package:", pkg.orig)))
-  ##-------------------------------------------------
+  return(report)
+  
+}
 
+
+#' Write benchmarks out for a comparison branch
+#' @description This function goes through the entire namespace of a given package, tests if there are benchmarks in the examples code .  If there is a benchmark, the code for that benchmark, and the reulting output are saved.
+#' @param datasets is the name of the datasets that should be loaded before benchmarking.
+#' @export 
+#' @return Nothing yet.
+#' @author Alex
+benchmark.generate.comparison <- function(pkg.loc="./",
+                                          pkg.name = tail(splitstr(normalizePath(pkg.loc),"/")[[1]],1),
+                                          branch = "master",
+                                          output.loc = "/tmp/",
+                                          verbose=TRUE,
+                                          datasets=NULL)
+{
+
+  ##------- Load the library -----------
+  library(pkg.name, character.only=TRUE)
+  ##------------------------------------
+  
+  ##------ Get namespace --------------
+  fs = ls(as.environment(paste0("package:",pkg.name)))
+  ##-----------------------------------
+  
+  ##-------- Setup directories ------------------
+  if(verbose) print("Setting up directories")
+  f.name <- paste0(output.loc,"/",pkg.name,"_",branch,"/")
+  if(file.exists(f.name))
+  {
+    system2("rm",paste0("-r ",f.name))
+  }
+  dir.create(f.name)
+  if( !is.null(datasets) ){dir.create(paste0(f.name,"data"))}
+  dir.create(paste0(f.name,"results"))
+  ##---------------------------------------------
+  
   ##----- Run Data code -------
+  ## This needs to be generalized!
   if(length(datasets) > 0)
   {
-    data(list = datasets, package = pkg.orig)
+    data(market_2)
   }
   ##---------------------------
 
   ##------ Run through all benchmarks --------
+  #'  i <- 20
   for(i in 1:length(fs))  ## Random to ensure no serial dependence between outputs
   {
-    str.f <- fs[i]
 
-    f <- eval(parse(text = str.f))
-    md5.f <- hash.obj(f)
+    str.f <- fs[i]
     a <- suppressWarnings(example(str.f, package = pkg.name, character.only=TRUE, give.lines = TRUE))
 
     if(!is.null(a))
@@ -100,28 +90,16 @@ compare.benchmarks <- function(pkg.loc="./",
           if(verbose)print(paste("On Function",str.f, "benchmark",j))
           l.b <- (w.benchmark.start[j]+1):(w.benchmark.stop[j] - 1)
           b.code <- a[l.b]
-          b.code.orig <- benchmark.localize(b.code, pkg.orig)
-          b.code.new <- benchmark.localize(b.code, pkg.new)
           cat(paste0(paste(b.code,collapse="\n"),"\n"))
           eval(parse(text = paste0("f.temp <- function(){", paste(b.code, collapse="\n"),"}")))
           b.result <- f.temp()
-          if(store.rda)
-          {
-
-          }
-          md5.res <- hash.obj(b.result)
-          md5.out[j + 1] <- md5.res
+          f.out <- paste0(f.name,"results/benchmark_",str.f,"_",j,".RData")
+          save(b.result, file = f.out)
         }
-      }else{
-        md5.out <- md5.f
       }
-    }else{
-      md5.out <- md5.f
     }
-    if(verbose){cat(paste0(paste(md5.out, collapse="\n"),"\n"))}
-    
-    f.out <- paste0(write.loc,"/benchmarks/",str.f)
-    cat(paste0(paste(md5.out, collapse="\n"),"\n"), file = f.out, append = FALSE)
   }
+
+  return(TRUE)
 }
 

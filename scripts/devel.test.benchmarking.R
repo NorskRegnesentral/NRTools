@@ -1,11 +1,9 @@
 rm(list = ls())
 
-library(NRTools)
-
-pkg.loc <- "./"
-pkg.name <- "NRTools"
+pkg.loc <- "~/pkg/pricemethodresearch/"
+pkg.name <- "pricemethodresearch"
 branch.orig <- "master"
 branch.new <- "dev"
-skip.same <- FALSE
 verbose <- TRUE
-datasets <- NULL
+datasets <- "market_2.RData"
+output.loc <- "/tmp/"

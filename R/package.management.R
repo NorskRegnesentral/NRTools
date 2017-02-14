@@ -129,7 +129,7 @@ benchmark.run.comparison <- function(pkg.loc="./",
 }
 
 benchmark.calculate.hashes <- function(pkg.name,
-                                       branch="master"
+                                       branch="master",
                                        output.loc="/tmp/")
 {
   h.all <- hash.namespace(pkg.name)

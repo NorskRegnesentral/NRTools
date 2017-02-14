@@ -55,9 +55,10 @@ benchmark.run.comparison <- function(pkg.loc="./",
 {
 
   ##------ First check that environment is clean and committed -----
+  setwd(pkg.loc)
   a.1 <- system2("git", paste0("checkout ",branch.orig),stdout=TRUE, stderr = TRUE)
   a.2 <- system2("git", paste0("checkout ",branch.new),stdout=TRUE, stderr = TRUE)
-  if(!is.null(a.1) | !is.null(a.2) ) stop("Your develop environment is not committed, unable to switch between branches")
+  if(!is.null(attr(a.1,"status")) | !is.null(attr(a.2,"status")) ) stop("Your develop environment is not committed, unable to switch between branches")
   ##----------------------------------------------------------------
 
 

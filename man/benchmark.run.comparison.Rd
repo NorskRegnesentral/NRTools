@@ -7,7 +7,7 @@
 benchmark.run.comparison(pkg.loc = "./",
   pkg.name = tail(strsplit(normalizePath(pkg.loc), "/")[[1]], 1),
   branch.orig = "master", branch.new = "dev", output.loc = "/tmp/",
-  verbose = TRUE, datasets = NULL)
+  verbose = TRUE, datasets = NULL, differences.only = TRUE)
 }
 \description{
 Note that this needs to launch separate R

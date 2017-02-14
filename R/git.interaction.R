@@ -77,8 +77,8 @@ git.install.branch <- function(branch,
   ##---------------------------------
 
   ##------ Update documentation ---
-  if(verbose)print("Updating documentation")
-  devtools::document()
+##  if(verbose)print("Updating documentation")
+  ##devtools::document()
   ##-------------------------------
 
   ##------ Rcpp --------------

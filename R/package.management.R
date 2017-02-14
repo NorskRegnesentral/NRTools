@@ -1,5 +1,5 @@
 #' Get the hash of an entire namespace
-#' @export
+#' @export hash.namespace
 hash.namespace <- function(pkg.name)
 {
   ##------- Load the library -----------
@@ -25,6 +25,7 @@ hash.namespace <- function(pkg.name)
 
 
 #' Compare the output of two benchmarks
+#' @export benchmark.compare.output
 benchmark.compare.output <- function(pkg.name,branch.orig, branch.new,output.loc, verbose)
 {
   path.orig <- paste0(output.loc,"/",pkg.name,"_",branch.orig,"/results/")
@@ -97,7 +98,7 @@ benchmark.run.comparison <- function(pkg.loc="./",
       command <- paste(branch,pkg.loc,pkg.name,sep="','")
       system2("Rscript", paste0("-e \"NRTools::git.install.branch('",command,"')\"") )
       command <- paste(pkg.name, branch, output.loc,sep="','")
-      system2("Rscript", paste("-e \"NRTools::hash.namespace('",command, "')\""))
+      system2("Rscript", paste0("-e \"NRTools::benchmark.calculate.hashes('",command, "')\""))
       ##-------------------------------------------------------------------
     }
 
@@ -128,6 +129,7 @@ benchmark.run.comparison <- function(pkg.loc="./",
   
 }
 
+#' @export benchmark.calculate.hashes
 benchmark.calculate.hashes <- function(pkg.name,
                                        branch="master",
                                        output.loc="/tmp/")
@@ -135,7 +137,8 @@ benchmark.calculate.hashes <- function(pkg.name,
   h.all <- hash.namespace(pkg.name)
   save(h.all, file = paste0(output.loc,"/hash_",pkg.name,"_",branch,".RData"))
 }
-  
+
+#' @export benchmark.compare.hashed.branches
 benchmark.compare.hashed.branches <- function(pkg.name,
                                               branch.orig = "master",
                                               branch.new = "dev",
@@ -148,7 +151,7 @@ benchmark.compare.hashed.branches <- function(pkg.name,
   names.new <- names(h.new)
   names.orig <- names(h.orig)
   w.in.both <- which(names.orig %in% names.new)
-  if(length(w.in.both))return(FALSE)
+  if(length(w.in.both) == 0)return(FALSE)
   fs.changed <- NULL
   for(j in 1:length(w.in.both))
   {
@@ -169,7 +172,7 @@ benchmark.compare.hashed.branches <- function(pkg.name,
 #' Write benchmarks out for a comparison branch
 #' @description This function goes through the entire namespace of a given package, tests if there are benchmarks in the examples code .  If there is a benchmark, the code for that benchmark, and the reulting output are saved.
 #' @param datasets is the name of the datasets that should be loaded before benchmarking.
-#' @export 
+#' @export benchmark.generate.comparison
 #' @return Nothing yet.
 #' @author Alex
 benchmark.generate.comparison <- function(pkg.loc="./",
@@ -209,7 +212,6 @@ benchmark.generate.comparison <- function(pkg.loc="./",
   if(length(datasets) > 0)
   {
     data(market_2)
-    DF.orig <- DF
   }
   ##---------------------------
 
@@ -241,7 +243,6 @@ benchmark.generate.comparison <- function(pkg.loc="./",
           save(b.result, file = f.out)
         }
       }
-      print(paste0("DF:",all.equal(DF,DF.orig)))
     }
   }
 

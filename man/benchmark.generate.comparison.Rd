@@ -7,7 +7,7 @@
 benchmark.generate.comparison(pkg.loc = "./",
   pkg.name = tail(splitstr(normalizePath(pkg.loc), "/")[[1]], 1),
   branch = "master", output.loc = "/tmp/", verbose = TRUE,
-  datasets = NULL)
+  datasets = NULL, fs = NULL)
 }
 \arguments{
 \item{datasets}{is the name of the datasets that should be loaded before benchmarking.}

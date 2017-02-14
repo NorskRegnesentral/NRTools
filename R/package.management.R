@@ -120,11 +120,13 @@ benchmark.generate.comparison <- function(pkg.loc="./",
   if(length(datasets) > 0)
   {
     data(market_2)
+    DF.orig <- DF
   }
   ##---------------------------
 
   ##------ Run through all benchmarks --------
   #'  i <- 20
+  ##for(i in sample(1:length(fs)))  ## Random to ensure no serial dependence between outputs
   for(i in 1:length(fs))  ## Random to ensure no serial dependence between outputs
   {
 
@@ -143,13 +145,14 @@ benchmark.generate.comparison <- function(pkg.loc="./",
           if(verbose)print(paste("On Function",str.f, "benchmark",j))
           l.b <- (w.benchmark.start[j]+1):(w.benchmark.stop[j] - 1)
           b.code <- a[l.b]
-          cat(paste0(paste(b.code,collapse="\n"),"\n"))
+##          cat(paste0(paste(b.code,collapse="\n"),"\n"))
           eval(parse(text = paste0("f.temp <- function(){", paste(b.code, collapse="\n"),"}")))
           b.result <- f.temp()
           f.out <- paste0(f.name,"results/benchmark_",str.f,"_",j,".RData")
           save(b.result, file = f.out)
         }
       }
+      print(paste0("DF:",all.equal(DF,DF.orig)))
     }
   }
 

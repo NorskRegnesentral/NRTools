@@ -1,11 +1,12 @@
 rm(list = ls())
 
-pkg.loc <- "~/pkg/ShotSliceSampler/"
-pkg.name <- "ShotSliceSampler"
-branch.orig <- "master"
-branch.new <- "dev"
-verbose <- TRUE
-output.loc <- "/tmp/"
-datasets <- NULL
+pkg.loc="./"
+pkg.name = tail(strsplit(normalizePath(pkg.loc),"/")[[1]],1)
+branch.orig = "master"
+branch.new = "benchmark"
+output.loc = "/tmp/"
+verbose=TRUE
+datasets="market_2"
+differences.only=FALSE
 
-report <- NRTools::benchmark.run.comparison(pkg.loc,pkg.name)
+report <- NRTools::benchmark.run.comparison(branch.new = branch.new, differences.only = differences.only)

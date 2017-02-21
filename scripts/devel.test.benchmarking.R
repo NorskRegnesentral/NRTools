@@ -9,6 +9,6 @@ branch.new = "benchmark"
 output.loc = "/tmp/"
 verbose=TRUE
 datasets="market_2"
-differences.only=TRUE
+differences.only=FALSE
 
 report <- NRTools::benchmark.run.comparison(branch.new = branch.new, differences.only = differences.only)

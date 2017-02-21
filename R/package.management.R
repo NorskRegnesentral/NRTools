@@ -332,15 +332,15 @@ benchmark.write.report <- function(report, pkg.loc = "./", pkg.name, branch.new 
   }else{
     if(!is.null(report$differences.detail$unequal))
     {
-      report.text <- paste0(report.text,"Following functions HAVE UNEQUAL benchmarks:", paste(report$differences.detail$unequal),"\n")
+      report.text <- paste0(report.text,"Following functions HAVE UNEQUAL benchmarks:\n\t", paste(report$differences.detail$unequal, collapse="\n\t"),"\n")
     }
     if(!is.null(report$differences.detail$missing))
     {
-      report.text <- paste0(report.text,"Following functions MISSING from new codebase:", paste(report$differences.detail$missing),"\n")
+      report.text <- paste0(report.text,"Following functions MISSING from new codebase:\n\t", paste(report$differences.detail$missing, collapse="\n\t"),"\n")
     }
     if(!is.null(report$differences.detail$new))
     {
-      report.text <- paste0(report.text,"Following functions NEW in new codebase:", paste(report$differences.detail$new),"\n")
+      report.text <- paste0(report.text,"Following functions NEW in new codebase:\n\t", paste(report$differences.detail$new, collapse="\n\t"),"\n")
     }
     if(!is.null(report$differences.detail$equal))
     {

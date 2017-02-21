@@ -117,7 +117,7 @@ benchmark.run.comparison <- function(pkg.loc="./",
     command <- paste(b,pkg.loc,pkg.name,sep="','")
     system2("Rscript", paste0("-e \"NRTools::git.install.branch('",command,"')\"") )
     command <- paste(pkg.loc,pkg.name, b, output.loc, verbose, datasets,fs,sep="','")
-    system2("Rscript", paste("-e \"NRTools::benchmark.generate.comparison('",command, "')\""))
+    system2("Rscript", paste0("-e \"NRTools::benchmark.generate.comparison('",command, "')\""))
     ##-------------------------------------------------------------------
   }
   
@@ -189,7 +189,7 @@ benchmark.generate.comparison <- function(pkg.loc="./",
   ##------------------------------------
   
   ##------ Get namespace --------------
-  if(is.null(fs))
+  if(is.null(fs) | fs == "")
   {
     fs = ls(as.environment(paste0("package:",pkg.name)))
   }
@@ -222,8 +222,11 @@ benchmark.generate.comparison <- function(pkg.loc="./",
   {
 
     str.f <- fs[i]
-    a <- suppressWarnings(example(str.f, package = pkg.name, character.only=TRUE, give.lines = TRUE))
-
+    a <- example(str.f, package = pkg.name, character.only=TRUE, give.lines = TRUE)
+    if(is.null(a))
+    {
+      warning(paste0(str.f,"has no examples associated with it!"))
+    }
     if(!is.null(a))
     {
 

@@ -11,4 +11,4 @@ verbose=TRUE
 datasets="market_2"
 differences.only=FALSE
 
-report <- NRTools::benchmark.run.comparison(branch.new = branch.new, differences.only = differences.only)
+NRTools::benchmark.branch(branch.new = "benchmark", differences.only = FALSE)

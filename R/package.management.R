@@ -40,7 +40,7 @@ hash.namespace <- function(pkg.name)
   ##------------------------------------
   
   ##------ Get namespace --------------
-  fs = ls(as.environment(paste0("package:",pkg.name)))
+  fs = sort(ls(as.environment(paste0("package:",pkg.name))))
   ##-----------------------------------
 
   ##------- Hash ---------

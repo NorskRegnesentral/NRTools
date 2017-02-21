@@ -1,3 +1,36 @@
+#' Create the md5 hash of an object
+#' @description R's tools only allow one to create the md5 hash of a file.  This function takes an R object, creates a file, calculates the hash, deletes the file and returns the result.
+#' @param obj Any R object that can be saved with the save command.
+#' @export hash.obj
+#' @return The md5 hash of an object
+#' @author Alex
+#' @examples
+#' ## BENCHMARK
+#' set.seed(1)
+#' r <- rnorm(1e5)
+#' r.md5 <- hash.obj(r)
+#' names(r.md5) <- NULL
+#' r.md5
+#' ## END BENCHMARK
+hash.obj <- function(obj)
+{
+  ## Every once in a while, floats cause problems.
+  if( is.numeric(obj) ) obj <- round(obj,6)
+  if( is.list(obj) )
+  {
+    for(j in 1:length(obj) )
+    {
+      if(is.numeric(obj) )
+      {
+        obj[[j]] <- round(obj[[j]], 6)
+      }
+    }
+  }
+  m.sum <- digest::digest(obj)
+  return(m.sum)
+}
+
+
 #' Get the hash of an entire namespace
 #' @export hash.namespace
 hash.namespace <- function(pkg.name)
@@ -270,8 +303,8 @@ benchmark.write.report <- function(report, pkg.loc = "./", pkg.name, branch.new 
   }
 
   ##--------- Hash the namespace for this report --------------
-  md5 <- hash.namespace(pkg.name)
-  cat(md5,file = paste0(folder, "source_hash"), append=FALSE)
+  md5 <- hash.obj(hash.namespace(pkg.name))
+  cat(paste0(md5,"\n"),file = paste0(folder, "source_hash"), append=FALSE)
   ##-----------------------------------------------------------
 
   ##---------- Write out report -------------------------------
@@ -279,31 +312,35 @@ benchmark.write.report <- function(report, pkg.loc = "./", pkg.name, branch.new 
   if(report$differences.only)
   {
     report.text <- paste0(report.text,"Benchmark run relative to source code differences only\n")
-    report.text <- paste0(report.text,"No differences found in source code\n")
   }else{
     report.text <- paste0(report.text,"Benchmark run over all functions\n")
   }
 
-  if(!is.null(report$diff$unequal))
+  if(is.null(report$diff))
   {
-    report.text <- paste0(report.text,"Following functions HAVE UNEQUAL benchmarks:", paste(report$diff$unequal),"\n")
-  }
-  if(!is.null(report$diff$missing))
-  {
-    report.text <- paste0(report.text,"Following functions MISSING from new codebase:", paste(report$diff$missing),"\n")
-  }
-  if(!is.null(report$diff$new))
-  {
-    report.text <- paste0(report.text,"Following functions NEW in new codebase:", paste(report$diff$new),"\n")
-  }
-  if(!is.null(report$diff$equal))
-  {
-    report.text <- paste0(report.text,"Following functions HAVE EQUAL benchmarks:", paste(report$diff$new),"\n")
+    report.text <- paste0(report.text,"No differences found in source code\n")
+  }else{
+    if(!is.null(report$diff$unequal))
+    {
+      report.text <- paste0(report.text,"Following functions HAVE UNEQUAL benchmarks:", paste(report$diff$unequal),"\n")
+    }
+    if(!is.null(report$diff$missing))
+    {
+      report.text <- paste0(report.text,"Following functions MISSING from new codebase:", paste(report$diff$missing),"\n")
+    }
+    if(!is.null(report$diff$new))
+    {
+      report.text <- paste0(report.text,"Following functions NEW in new codebase:", paste(report$diff$new),"\n")
+    }
+    if(!is.null(report$diff$equal))
+    {
+      report.text <- paste0(report.text,"Following functions HAVE EQUAL benchmarks:\n\t", paste(report$diff$equal,collapse="\n\t"),"\n")
+    }
   }
 
   cat(report.text, file = paste0(folder, "benchmark_report.txt"), append= FALSE)
   ##---------------------------------------------------------------
-  }
+}
 
 benchmark.branch <- function(pkg.loc="./",
                              pkg.name = tail(strsplit(normalizePath(pkg.loc),"/")[[1]],1),

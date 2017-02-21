@@ -293,6 +293,7 @@ benchmark.run.comparison <- function(pkg.loc="./",
   
 }
 
+#' @export benchmark.write.report
 benchmark.write.report <- function(report, pkg.loc = "./", pkg.name, branch.new = "dev")
 {
   a <- system2("git",paste0("checkout ",branch.new), stdout = TRUE, stderr = TRUE)
@@ -351,6 +352,7 @@ benchmark.write.report <- function(report, pkg.loc = "./", pkg.name, branch.new 
   ##---------------------------------------------------------------
 }
 
+#' @export benchmark.branch
 benchmark.branch <- function(pkg.loc="./",
                              pkg.name = tail(strsplit(normalizePath(pkg.loc),"/")[[1]],1),
                              branch.orig = "master",
@@ -366,6 +368,7 @@ benchmark.branch <- function(pkg.loc="./",
   benchmark.write.report(report,pkg.loc, pkg.name, branch.new)
 }
 
+#' @export benchmark.test
 benchmark.test <- function(pkg.name)
 {
   library(pkg.name, character.only=TRUE)

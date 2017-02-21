@@ -286,7 +286,7 @@ benchmark.run.comparison <- function(pkg.loc="./",
   }
   
   ##-------- Compare the benchmarks --------------
-  report$diff <- benchmark.compare.output(pkg.name,branch.orig, branch.new, output.loc, verbose)
+  report$differences.detail <- benchmark.compare.output(pkg.name,branch.orig, branch.new, output.loc, verbose)
   ##---------------------------------------------
 
   return(report)
@@ -326,25 +326,25 @@ benchmark.write.report <- function(report, pkg.loc = "./", pkg.name, branch.new 
     report.text <- paste0(report.text,"Benchmark run over all functions\n")
   }
 
-  if(is.null(report$diff))
+  if(is.null(report$differences.detail))
   {
     report.text <- paste0(report.text,"No differences found in source code\n")
   }else{
-    if(!is.null(report$diff$unequal))
+    if(!is.null(report$differences.detail$unequal))
     {
-      report.text <- paste0(report.text,"Following functions HAVE UNEQUAL benchmarks:", paste(report$diff$unequal),"\n")
+      report.text <- paste0(report.text,"Following functions HAVE UNEQUAL benchmarks:", paste(report$differences.detail$unequal),"\n")
     }
-    if(!is.null(report$diff$missing))
+    if(!is.null(report$differences.detail$missing))
     {
-      report.text <- paste0(report.text,"Following functions MISSING from new codebase:", paste(report$diff$missing),"\n")
+      report.text <- paste0(report.text,"Following functions MISSING from new codebase:", paste(report$differences.detail$missing),"\n")
     }
-    if(!is.null(report$diff$new))
+    if(!is.null(report$differences.detail$new))
     {
-      report.text <- paste0(report.text,"Following functions NEW in new codebase:", paste(report$diff$new),"\n")
+      report.text <- paste0(report.text,"Following functions NEW in new codebase:", paste(report$differences.detail$new),"\n")
     }
-    if(!is.null(report$diff$equal))
+    if(!is.null(report$differences.detail$equal))
     {
-      report.text <- paste0(report.text,"Following functions HAVE EQUAL benchmarks:\n\t", paste(report$diff$equal,collapse="\n\t"),"\n")
+      report.text <- paste0(report.text,"Following functions HAVE EQUAL benchmarks:\n\t", paste(report$differences.detail$equal,collapse="\n\t"),"\n")
     }
   }
 

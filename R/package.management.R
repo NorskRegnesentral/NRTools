@@ -296,16 +296,25 @@ benchmark.run.comparison <- function(pkg.loc="./",
 benchmark.write.report <- function(report, pkg.loc = "./", pkg.name, branch.new = "dev")
 {
   a <- system2("git",paste0("checkout ",branch.new), stdout = TRUE, stderr = TRUE)
+
+  ##--------- Hash the namespace for this report --------------
+  md5 <- hash.obj(hash.namespace(pkg.name))
+  descr <- readLines(paste0(pkg.loc,"/DESCRIPTION"))
+  w.hash <- which(substr(descr,1,nchar("NRToolsHash:")) == "NRToolsHash:")
+  if(length(w.hash) == 0)
+  {
+    descr <- c(descr, paste0("NRToolsHash: ",md5))
+  }else{
+    descr[w.hash[1]] <- paste0("NRToolsHash: ",md5)
+  }
+  cat(paste0(paste(descr, collapse="\n"),"\n"), file = paste0(pkg.loc,"/DESCRIPTION"), append = FALSE)
+  ##-----------------------------------------------------------
+
   folder <- paste0(pkg.loc, "/benchmark/")
   if(!file.exists(folder))
   {
     dir.create(folder)
   }
-
-  ##--------- Hash the namespace for this report --------------
-  md5 <- hash.obj(hash.namespace(pkg.name))
-  cat(paste0(md5,"\n"),file = paste0(folder, "source_hash"), append=FALSE)
-  ##-----------------------------------------------------------
 
   ##---------- Write out report -------------------------------
   report.text <- paste0("Benchmark report for branch ",branch.new,"\n")
@@ -355,4 +364,19 @@ benchmark.branch <- function(pkg.loc="./",
   report <- benchmark.run.comparison(pkg.loc, pkg.name, branch.orig, branch.new,
                                      output.loc, verbose, datasets, differences.only)
   benchmark.write.report(report,pkg.loc, pkg.name, branch.new)
+}
+
+benchmark.test <- function(pkg.name)
+{
+  library(pkg.name, character.only=TRUE)
+  descr <- readLines(paste0(path.package(pkg.name),"/DESCRIPTION"))
+  w.hash <- which(substr(descr,1,nchar("NRToolsHash:")) == "NRToolsHash:")
+  if(length(w.hash) == 0)
+  {
+    return(FALSE)
+  }
+
+  md5.descr <- substr(descr[w.hash[1]], nchar("NRToolsHash:")+2, nchar(descr[w.hash[1]]))
+  md5.source <- hash.obj(hash.namespace(pkg.name))
+  return(md5.descr == md5.source)
 }
